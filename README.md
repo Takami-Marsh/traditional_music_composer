@@ -66,11 +66,59 @@ The program uses several sophisticated algorithms to:
 - C++ compiler with C++11 support or later
 - Standard Template Library (STL)
 
-## Building
+## Running the Program
 
+### Pre-compiled Executables for Apple Silicon Macs
+If you're using a Mac with Apple Silicon (M1/M2/M3), you can use the pre-compiled executables in the `MacOS_ARM` directory:
+
+#### Main Composer Program
 ```bash
+# Navigate to the MacOS_ARM directory
+cd MacOS_ARM/
+
+# Run the composer program
+./composer
+```
+
+#### Additional Tools
+The MacOS_ARM directory also includes specialized tools:
+
+- **interval_solver**: Calculates the interval between two given notes
+  ```bash
+  ./interval_solver
+  ```
+
+- **pitch_solver**: Finds possible notes at a given interval from a reference note
+  ```bash
+  ./pitch_solver
+  ```
+
+### Building from Source
+If you need to build the program from source:
+```bash
+# Navigate to the source code directory
+cd source_code/
+
+# Compile the program
 g++ -std=c++11 composer.cpp -o composer
 ```
+
+### Using the Program
+1. After building, run the program:
+   ```bash
+   ./composer
+   ```
+2. The program will prompt you for input in the following order:
+   - Enter your previous melody note (e.g., "mC" for middle C)
+   - Enter the reference pitch (e.g., "mG" for G)
+   - Choose direction ("U" for up or "D" for down)
+
+3. The program will display possible next notes, showing:
+   - The interval relationship with the reference pitch
+   - The melodic interval from the previous note
+   - The suggested next note
+
+4. The program runs continuously, allowing you to explore multiple melodic possibilities. Press Ctrl+C (Command+C on Mac) to exit.
 
 ## License
 
