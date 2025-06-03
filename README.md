@@ -120,6 +120,16 @@ g++ -std=c++11 composer.cpp -o composer
 
 4. The program runs continuously, allowing you to explore multiple melodic possibilities. Press Ctrl+C (Command+C on Mac) to exit.
 
+## Python GUI Composer
+
+If you prefer a simple graphical interface that automatically generates random melodies, run the `auto_song_gui.py` script:
+
+```bash
+python3 auto_song_gui.py
+```
+
+This GUI lets you choose the number of notes to generate and provides basic playback using `pygame`.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
