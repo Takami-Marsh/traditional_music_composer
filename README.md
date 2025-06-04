@@ -122,13 +122,13 @@ g++ -std=c++11 composer.cpp -o composer
 
 ## Python GUI Composer
 
-If you prefer a simple graphical interface that automatically generates random melodies, run the `auto_song_gui.py` script:
+The project also provides a small GUI written in Python that creates simple church-style choir harmonies. It lets you select how many chords are generated and the playback tempo:
 
 ```bash
 python3 auto_song_gui.py
 ```
 
-This GUI lets you choose the number of notes to generate and provides basic playback using `pygame`.
+The application shows the generated chords, plays them back using `pygame`, and allows you to stop playback at any time.
 
 ## License
 

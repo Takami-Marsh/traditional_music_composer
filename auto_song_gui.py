@@ -20,25 +20,40 @@ NOTE_FREQUENCIES = {
     'B': 493.88,
 }
 
-DURATION = 0.5  # duration of each note in seconds
+# Simple triads used for a church-style progression
+CHORDS = {
+    'C': ['C', 'E', 'G'],
+    'F': ['F', 'A', 'C'],
+    'G': ['G', 'B', 'D'],
+}
+
+# Default beats per minute
+DEFAULT_BPM = 90
 
 
-def generate_wave(freq, duration=DURATION, volume=0.5):
+def generate_wave(frequencies, duration, volume=0.5):
+    """Create a pygame Sound for a list of frequencies."""
     sample_rate = 44100
     t = np.linspace(0, duration, int(sample_rate * duration), False)
-    wave = np.sin(freq * t * 2 * np.pi)
+    wave = np.zeros_like(t)
+    for freq in frequencies:
+        wave += np.sin(freq * t * 2 * np.pi)
+    wave /= max(len(frequencies), 1)
     audio = (wave * (2**15 - 1) * volume).astype(np.int16)
     sound = pygame.sndarray.make_sound(audio)
     return sound
 
 
 def generate_song(note_count):
+    """Generate a simple church-style chord progression with rhythms."""
     import random
-    notes = []
-    note_names = list(NOTE_FREQUENCIES.keys())
-    for _ in range(note_count):
-        notes.append(random.choice(note_names))
-    return notes
+    progression = ['C', 'F', 'G', 'C']
+    chords = []
+    for i in range(note_count):
+        root = progression[i % len(progression)]
+        beats = random.choice([1, 1, 2])  # favor quarter notes
+        chords.append((CHORDS[root], beats))
+    return chords
 
 
 class ComposerGUI:
@@ -57,11 +72,21 @@ class ComposerGUI:
         self.generate_button = tk.Button(master, text="Generate", command=self.generate)
         self.generate_button.pack()
 
-        self.listbox = tk.Listbox(master)
+        self.bpm_label = tk.Label(master, text="Tempo (BPM):")
+        self.bpm_label.pack()
+        self.bpm_var = tk.IntVar(value=DEFAULT_BPM)
+        self.bpm_scale = tk.Scale(master, from_=60, to=140, orient=tk.HORIZONTAL, variable=self.bpm_var)
+        self.bpm_scale.pack()
+
+        self.listbox = tk.Listbox(master, width=20)
         self.listbox.pack()
 
         self.play_button = tk.Button(master, text="Play", command=self.play)
-        self.play_button.pack()
+        self.play_button.pack(side=tk.LEFT, padx=5)
+        self.stop_button = tk.Button(master, text="Stop", command=self.stop)
+        self.stop_button.pack(side=tk.LEFT, padx=5)
+
+        self.is_playing = False
 
     def generate(self):
         try:
@@ -73,18 +98,27 @@ class ComposerGUI:
             return
         self.notes = generate_song(count)
         self.listbox.delete(0, tk.END)
-        for n in self.notes:
-            self.listbox.insert(tk.END, n)
+        for chord, beats in self.notes:
+            name = "-".join(chord)
+            self.listbox.insert(tk.END, f"{name} ({beats}b)")
 
     def play(self):
         if not self.notes:
             messagebox.showerror("Error", "Generate notes first")
             return
-        for note in self.notes:
-            freq = NOTE_FREQUENCIES[note]
-            sound = generate_wave(freq)
+        self.is_playing = True
+        bpm = self.bpm_var.get()
+        for chord, beats in self.notes:
+            if not self.is_playing:
+                break
+            freqs = [NOTE_FREQUENCIES[n] for n in chord]
+            duration = beats * 60 / bpm
+            sound = generate_wave(freqs, duration)
             sound.play()
-            pygame.time.wait(int(DURATION * 1000))
+            pygame.time.wait(int(duration * 1000))
+
+    def stop(self):
+        self.is_playing = False
 
 
 def main():
