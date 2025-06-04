@@ -120,6 +120,16 @@ g++ -std=c++11 composer.cpp -o composer
 
 4. The program runs continuously, allowing you to explore multiple melodic possibilities. Press Ctrl+C (Command+C on Mac) to exit.
 
+## Python GUI Composer
+
+The project also includes a Python GUI that demonstrates the C++ music theory logic. The program automatically generates a small song using interval rules derived from the C++ header files. You can choose how many notes to create and set the playback tempo:
+
+```bash
+python3 auto_song_gui.py
+```
+
+The application lists each generated chord with its length, plays them back using `pygame`, and allows you to stop playback at any time. Playback uses synthesized sine waves and respects the tempo you select.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
