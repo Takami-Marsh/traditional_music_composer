@@ -122,13 +122,13 @@ g++ -std=c++11 composer.cpp -o composer
 
 ## Python GUI Composer
 
-The project also provides a small GUI written in Python that creates simple church-style choir harmonies. It lets you select how many chords are generated and the playback tempo:
+The project also includes a Python GUI that demonstrates the C++ music theory logic. The program automatically generates a short melody using interval rules derived from the C++ header files. You can choose how many notes to create and set the playback tempo:
 
 ```bash
 python3 auto_song_gui.py
 ```
 
-The application shows the generated chords, plays them back using `pygame`, and allows you to stop playback at any time.
+The application lists the generated notes, plays them back using `pygame`, and allows you to stop playback at any time.
 
 ## License
 

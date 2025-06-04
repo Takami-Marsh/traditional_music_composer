@@ -3,29 +3,14 @@ from tkinter import messagebox
 import numpy as np
 import os
 import pygame
+import random
+
+import music_theory as mt
 
 # Initialize pygame mixer
 # Use a dummy audio driver if no sound device is available
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 pygame.mixer.init(frequency=44100, size=-16, channels=1)
-
-# Note frequencies for one octave starting from middle C (C4)
-NOTE_FREQUENCIES = {
-    'C': 261.63,
-    'D': 293.66,
-    'E': 329.63,
-    'F': 349.23,
-    'G': 392.00,
-    'A': 440.00,
-    'B': 493.88,
-}
-
-# Simple triads used for a church-style progression
-CHORDS = {
-    'C': ['C', 'E', 'G'],
-    'F': ['F', 'A', 'C'],
-    'G': ['G', 'B', 'D'],
-}
 
 # Default beats per minute
 DEFAULT_BPM = 90
@@ -44,16 +29,20 @@ def generate_wave(frequencies, duration, volume=0.5):
     return sound
 
 
-def generate_song(note_count):
-    """Generate a simple church-style chord progression with rhythms."""
-    import random
-    progression = ['C', 'F', 'G', 'C']
-    chords = []
-    for i in range(note_count):
-        root = progression[i % len(progression)]
-        beats = random.choice([1, 1, 2])  # favor quarter notes
-        chords.append((CHORDS[root], beats))
-    return chords
+def generate_melody(note_count, start_note="mC"):
+    """Generate a melody using interval rules from the C++ implementation."""
+    melody = [start_note]
+    current = start_note
+    for _ in range(note_count - 1):
+        direction = random.choice(["up", "down"])
+        if direction == "up":
+            choices = mt.melody_interval_up(current)
+        else:
+            choices = mt.melody_interval_down(current)
+        if choices:
+            current = random.choice(choices)[1]
+        melody.append(current)
+    return melody
 
 
 class ComposerGUI:
@@ -96,11 +85,10 @@ class ComposerGUI:
         except ValueError:
             messagebox.showerror("Error", "Please enter a positive integer")
             return
-        self.notes = generate_song(count)
+        self.notes = generate_melody(count)
         self.listbox.delete(0, tk.END)
-        for chord, beats in self.notes:
-            name = "-".join(chord)
-            self.listbox.insert(tk.END, f"{name} ({beats}b)")
+        for note in self.notes:
+            self.listbox.insert(tk.END, note)
 
     def play(self):
         if not self.notes:
@@ -108,12 +96,12 @@ class ComposerGUI:
             return
         self.is_playing = True
         bpm = self.bpm_var.get()
-        for chord, beats in self.notes:
+        for note in self.notes:
             if not self.is_playing:
                 break
-            freqs = [NOTE_FREQUENCIES[n] for n in chord]
-            duration = beats * 60 / bpm
-            sound = generate_wave(freqs, duration)
+            freq = mt.note_to_frequency(note)
+            duration = 60 / bpm
+            sound = generate_wave([freq], duration)
             sound.play()
             pygame.time.wait(int(duration * 1000))
 
