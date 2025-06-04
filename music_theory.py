@@ -11,7 +11,20 @@ intervals = [
 ]
 notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 test = ["#B", "mC", "#C", "bD", "mD", "#D", "bE", "bF", "mE", "#E", "mF", "#F", "bG", "mG", "#G", "bA", "mA", "#A", "bB", "bC", "mB", "#B", "mC"]
-melody_intervals = ["P1", "A1", "D2", "m2", "M2", "A2", "D3", "m3", "M3", "A3", "P4", "P5", "P8"]
+melody_intervals = [
+    "P1",
+    "A1",
+    "D2",
+    "m2",
+    "M2",
+    "A2",
+    "D3",
+    "m3",
+    "M3",
+    "A3",
+    "P4",
+    "P5",
+]
 
 NOTE_TO_SEMITONE = {
     "#B":0, "mC":0,
@@ -44,7 +57,16 @@ def note_to_frequency(note: str) -> float:
         raise ValueError(f"Unknown note {note}")
     return BASE_FREQ * pow(2, octave) * pow(2, semitone / 12)
 
+def _strip_octave(note: str) -> str:
+    """Return the base note without octave prefix."""
+    if note.startswith(('+', '-')):
+        return note[1:]
+    return note
+
+
 def two_pitch_position_solver(low: str, high: str):
+    low = _strip_octave(low)
+    high = _strip_octave(high)
     loop_count = len(piano)
     low_where = high_where = None
     flag = 0
@@ -67,6 +89,8 @@ def two_pitch_position_solver(low: str, high: str):
     return low_where, high_where
 
 def two_pitch_distance_solver(low: str, high: str) -> int:
+    low = _strip_octave(low)
+    high = _strip_octave(high)
     low_where = notes.index(low[1])
     high_where = notes.index(high[1])
     loop_count = len(notes)
