@@ -45,11 +45,34 @@ def generate_melody(note_count, start_note="mC"):
     return melody
 
 
+def generate_song(note_count, start_note="mC"):
+    """Generate a sequence of chords with varying durations."""
+    melody = generate_melody(note_count, start_note)
+    song = []
+    for note in melody:
+        chord_type = random.choice(["major", "minor", "power"])
+        chord = [note]
+        if chord_type == "major":
+            third = mt.high_pitch_solver(note, "M3")
+        elif chord_type == "minor":
+            third = mt.high_pitch_solver(note, "m3")
+        else:
+            third = None
+        if third and third != "None":
+            chord.append(third)
+        fifth = mt.high_pitch_solver(note, "P5")
+        if fifth != "None":
+            chord.append(fifth)
+        length = random.choice([0.5, 1.0, 1.5, 2.0])
+        song.append((chord, length))
+    return song
+
+
 class ComposerGUI:
     def __init__(self, master):
         self.master = master
         master.title("Auto Song Composer")
-        self.notes = []
+        self.song = []
 
         self.count_label = tk.Label(master, text="Number of Notes:")
         self.count_label.pack()
@@ -85,28 +108,32 @@ class ComposerGUI:
         except ValueError:
             messagebox.showerror("Error", "Please enter a positive integer")
             return
-        self.notes = generate_melody(count)
+        self.song = generate_song(count)
         self.listbox.delete(0, tk.END)
-        for note in self.notes:
-            self.listbox.insert(tk.END, note)
+        for chord, dur in self.song:
+            self.listbox.insert(tk.END, f"{'-'.join(chord)} ({dur})")
 
     def play(self):
-        if not self.notes:
+        if not self.song:
             messagebox.showerror("Error", "Generate notes first")
             return
         self.is_playing = True
         bpm = self.bpm_var.get()
-        for note in self.notes:
+        for chord, length in self.song:
             if not self.is_playing:
                 break
-            freq = mt.note_to_frequency(note)
-            duration = 60 / bpm
-            sound = generate_wave([freq], duration)
-            sound.play()
-            pygame.time.wait(int(duration * 1000))
+            freqs = [mt.note_to_frequency(n) for n in chord]
+            duration = (60 / bpm) * length
+            sound = generate_wave(freqs, duration)
+            channel = sound.play()
+            elapsed = 0
+            while channel.get_busy() and self.is_playing and elapsed < duration * 1000:
+                pygame.time.wait(10)
+                elapsed += 10
 
     def stop(self):
         self.is_playing = False
+        pygame.mixer.stop()
 
 
 def main():
